@@ -1,0 +1,45 @@
+# Core dependencies
+flask>=2.3.0
+flask-sqlalchemy>=3.0.0
+werkzeug>=2.3.0
+jinja2>=3.1.0
+click>=8.1.0
+itsdangerous>=2.1.0
+markupsafe>=2.1.0
+blinker>=1.6.0
+
+# Database dependencies
+psycopg2-binary>=2.9.0
+redis>=4.5.0
+
+# AI and ML dependencies
+openai>=0.27.0
+gtts>=2.3.0
+requests>=2.31.0
+
+# Image processing
+pillow>=10.0.0
+opencv-python>=4.8.0
+numpy>=1.24.0
+
+# Data processing
+pandas>=2.0.0
+python-dateutil>=2.8.0
+
+# Web scraping and parsing
+beautifulsoup4>=4.12.0
+lxml>=4.9.0
+
+# Geocoding and location
+geopy>=2.3.0
+
+# Configuration and environment
+python-dotenv>=1.0.0
+
+# Development dependencies (optional)
+# pytest>=7.0.0
+# pytest-cov>=4.0.0
+# black>=23.0.0
+# flake8>=6.0.0
+# mypy>=1.0.0
+# pre-commit>=3.0.0

@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Krissi - AI Agriculture Assistant</title>
+    <meta name="description" content="Advanced AI-powered agriculture chatbot helping farmers with crop advice, weather information, disease detection, and market insights.">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="static/images/favicon.ico">
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --primary-color: #7d2e3e;
+            --secondary-color: #8ada8d;
+            --accent-color: #8bc34a;
+            --text-color: #d3c9c9;
+            --light-bg: #f8f9fa;
+            --border-color: #e6e1de;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+
+        .main-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            margin: 20px auto;
+            max-width: 1200px;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .language-selector {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+
+        .chat-container {
+            height: 500px;
+            overflow-y: auto;
+            padding: 20px;
+            background: var(--light-bg);
+            border-radius: 15px;
+            margin: 20px;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .message.bot {
+            justify-content: flex-start;
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 12px 18px;
+            border-radius: 18px;
+            position: relative;
+            word-wrap: break-word;
+        }
+
+        .message.user .message-content {
+            background: var(--primary-color);
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+
+        .message.bot .message-content {
+            background: white;
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            border-bottom-left-radius: 5px;
+        }
+
+        .message-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            margin: 0 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .message.user .message-avatar {
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .message.bot .message-avatar {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .input-section {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .btn-feature {
+            margin: 5px;
+            border-radius: 25px;
+            padding: 10px 20px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-feature:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .feature-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .feature-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+
+        .weather-widget {
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            color: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px;
+        }
+
+        .market-prices {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px;
+        }
+
+        .price-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .file-upload {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+            background: var(--light-bg);
+            border: 2px dashed var(--border-color);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .file-upload:hover,
+        .file-upload.dragover {
+            border-color: var(--primary-color);
+            background: rgba(46, 125, 50, 0.1);
+        }
+
+        .file-upload input[type=file] {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .footer {
+            background: var(--light-bg);
+            padding: 20px;
+            text-align: center;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .footer-links a {
+            color: var(--primary-color);
+            margin: 0 10px;
+            font-size: 1.5rem;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--secondary-color);
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .feature-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <!-- Header -->
+        <div class="header position-relative">
+            <div class="language-selector">
+                <select id="language-select" class="form-select form-select-sm">
+                    {% for code, name in languages.items() %}
+                    <option value="{{ code }}" {% if code == 'en' %}selected{% endif %}>{{ name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <h1><i class="bi bi-leaf-fill"></i> {{ app_name }}</h1>
+            <p>{{ app_description }}</p>
+        </div>
+
+        <!-- Feature Cards -->
+        <div class="feature-cards">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="bi bi-cloud-sun"></i>
+                </div>
+                <h5>Weather Info</h5>
+                <p>Get real-time weather data and farming recommendations</p>
+                <button class="btn btn-outline-primary btn-sm" onclick="showWeatherModal()">
+                    Check Weather
+                </button>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="bi bi-seed"></i>
+                </div>
+                <h5>Crop Advice</h5>
+                <p>Get personalized crop recommendations based on location and soil</p>
+                <button class="btn btn-outline-primary btn-sm" onclick="showCropModal()">
+                    Get Advice
+                </button>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="bi bi-graph-up"></i>
+                </div>
+                <h5>Market Prices</h5>
+                <p>Stay updated with current agricultural commodity prices</p>
+                <button class="btn btn-outline-primary btn-sm" onclick="showMarketModal()">
+                    View Prices
+                </button>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="bi bi-camera"></i>
+                </div>
+                <h5>Disease Detection</h5>
+                <p>Upload crop images for disease analysis and treatment advice</p>
+                <button class="btn btn-outline-primary btn-sm" onclick="showImageModal()">
+                    Upload Image
+                </button>
+            </div>
+        </div>
+
+        <!-- Chat Section -->
+        <div class="chat-container" id="chat-container">
+            <div class="message bot">
+                <div class="message-avatar">
+                    <i class="bi bi-robot"></i>
+                </div>
+                <div class="message-content">
+                    <strong>{{ app_name }}:</strong> Hello! I'm your AI agriculture assistant. How can I help you today? You can ask me about:
+                    <ul class="mb-0 mt-2">
+                        <li>Crop selection and management</li>
+                        <li>Weather impact on farming</li>
+                        <li>Pest and disease control</li>
+                        <li>Soil health and fertilization</li>
+                        <li>Market trends and pricing</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Input Section -->
+        <div class="input-section">
+            <div class="input-group">
+                <input type="text" class="form-control" id="user-input" placeholder="Type your question here..." aria-label="User input">
+                <button class="btn btn-primary" id="send-btn">
+                    <i class="bi bi-send"></i> Send
+                </button>
+            </div>
+            
+            <div class="d-flex flex-wrap justify-content-center">
+                <button class="btn btn-feature btn-outline-success" id="record-btn">
+                    <i class="bi bi-mic"></i> Voice Input
+                </button>
+                
+                <button class="btn btn-feature btn-outline-info" onclick="showImageModal()">
+                    <i class="bi bi-camera"></i> Upload Image
+                </button>
+                
+                <button class="btn btn-feature btn-outline-warning" onclick="exportChat()">
+                    <i class="bi bi-download"></i> Export Chat
+                </button>
+                
+                <button class="btn btn-feature btn-outline-secondary" onclick="clearChat()">
+                    <i class="bi bi-trash"></i> Clear Chat
+                </button>
+            </div>
+        </div>
+
+        <!-- Audio Player -->
+        <div class="text-center p-3">
+            <audio id="audio" controls style="max-width: 100%;"></audio>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <div class="footer-links">
+                <h6>Made with ❤️ by Gopal Bhingewad</h6>
+                <a href="https://www.linkedin.com/in/gopal-bhingewad-91933a161" target="_blank" title="LinkedIn">
+                    <i class="bi bi-linkedin"></i>
+                </a>
+                <a href="https://github.com/gops123" target="_blank" title="GitHub">
+                    <i class="bi bi-github"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Weather Modal -->
+    <div class="modal fade" id="weatherModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Weather Information</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="weather-location" class="form-label">Location</label>
+                        <input type="text" class="form-control" id="weather-location" placeholder="Enter city or village name">
+                    </div>
+                    <button class="btn btn-primary" onclick="getWeather()">Get Weather</button>
+                    <div id="weather-result" class="mt-3"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Crop Advice Modal -->
+    <div class="modal fade" id="cropModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Crop Recommendations</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="crop-location" class="form-label">Location</label>
+                        <input type="text" class="form-control" id="crop-location" placeholder="Enter your location">
+                    </div>
+                    <div class="mb-3">
+                        <label for="soil-type" class="form-label">Soil Type</label>
+                        <select class="form-select" id="soil-type">
+                            <option value="">Select soil type</option>
+                            <option value="clay">Clay</option>
+                            <option value="sandy">Sandy</option>
+                            <option value="loamy">Loamy</option>
+                            <option value="black">Black</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" onclick="getCropAdvice()">Get Recommendations</button>
+                    <div id="crop-result" class="mt-3"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Market Prices Modal -->
+    <div class="modal fade" id="marketModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Market Prices</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="market-prices" class="market-prices">
+                        <h6>Loading market prices...</h6>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Image Upload Modal -->
+    <div class="modal fade" id="imageModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Crop Disease Detection</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="file-upload" onclick="document.getElementById('image-upload').click()" 
+                         ondrop="handleDrop(event)" 
+                         ondragover="handleDragOver(event)" 
+                         ondragleave="handleDragLeave(event)">
+                        <i class="bi bi-cloud-upload" style="font-size: 3rem; color: var(--primary-color);"></i>
+                        <p class="mt-2">Click to upload crop image</p>
+                        <p class="text-muted small">Supports: JPG, PNG, GIF</p>
+                        <p class="text-muted small">Or drag and drop your image here</p>
+                        <input type="file" id="image-upload" accept="image/*" onchange="handleImageUpload(this)" style="display: none;">
+                    </div>
+                    <div id="image-preview" class="mt-3 text-center"></div>
+                    <div id="image-analysis" class="mt-3"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- Custom JavaScript -->
+    <script>
+        $(document).ready(function() {
+            // Initialize modals
+            const weatherModal = new bootstrap.Modal(document.getElementById('weatherModal'));
+            const cropModal = new bootstrap.Modal(document.getElementById('cropModal'));
+            const marketModal = new bootstrap.Modal(document.getElementById('marketModal'));
+            const imageModal = new bootstrap.Modal(document.getElementById('imageModal'));
+
+            // Global variables
+            let recording = false;
+            let recorder;
+            let currentLanguage = 'en';
+
+            // Event listeners
+            $('#send-btn').on('click', sendMessage);
+            $('#user-input').on('keypress', function(e) {
+                if (e.which === 13) sendMessage();
+            });
+            $('#record-btn').on('click', toggleRecording);
+            $('#language-select').on('change', function() {
+                currentLanguage = $(this).val();
+                updateLanguage();
+            });
+
+            // Functions
+            function sendMessage() {
+                const userInput = $('#user-input').val().trim();
+                if (userInput === '') return;
+
+                // Add user message
+                addMessage(userInput, 'user');
+                $('#user-input').val('');
+
+                // Show typing indicator
+                const typingId = addTypingIndicator();
+
+                // Send to server
+                $.post('/chat', {
+                    text: userInput,
+                    language: currentLanguage
+                }, function(response) {
+                    removeTypingIndicator(typingId);
+                    
+                    if (response.text) {
+                        addMessage(response.text, 'bot');
+                        if (response.voice) {
+                            setVoice(response.voice);
+                        }
+                    }
+                }).fail(function() {
+                    removeTypingIndicator(typingId);
+                    addMessage('Sorry, I encountered an error. Please try again.', 'bot');
+                });
+            }
+
+            function addMessage(text, sender) {
+                const messageHtml = `
+                    <div class="message ${sender}">
+                        <div class="message-avatar">
+                            <i class="bi bi-${sender === 'user' ? 'person' : 'robot'}"></i>
+                        </div>
+                        <div class="message-content">
+                            <strong>${sender === 'user' ? 'You' : 'Farmer AI'}:</strong> ${text}
+                        </div>
+                    </div>
+                `;
+                $('#chat-container').append(messageHtml);
+                scrollToBottom();
+            }
+
+            function addTypingIndicator() {
+                const id = 'typing-' + Date.now();
+                const typingHtml = `
+                    <div class="message bot" id="${id}">
+                        <div class="message-avatar">
+                            <i class="bi bi-robot"></i>
+                        </div>
+                        <div class="message-content">
+                            <div class="loading"></div> Farmer AI is typing...
+                        </div>
+                    </div>
+                `;
+                $('#chat-container').append(typingHtml);
+                scrollToBottom();
+                return id;
+            }
+
+            function removeTypingIndicator(id) {
+                $(`#${id}`).remove();
+            }
+
+            function scrollToBottom() {
+                const container = document.getElementById('chat-container');
+                container.scrollTop = container.scrollHeight;
+            }
+
+            // Voice recording functions
+            function toggleRecording() {
+                if (recording) {
+                    stopRecording();
+                    $('#record-btn').html('<i class="bi bi-mic"></i> Voice Input');
+                } else {
+                    startRecording();
+                    $('#record-btn').html('<i class="bi bi-stop-circle"></i> Stop Recording');
+                }
+                recording = !recording;
+            }
+
+            function startRecording() {
+                if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                    navigator.mediaDevices.getUserMedia({ audio: true })
+                        .then(function(stream) {
+                            recorder = new MediaRecorder(stream);
+                            const chunks = [];
+
+                            recorder.addEventListener('dataavailable', function(e) {
+                                chunks.push(e.data);
+                            });
+
+                            recorder.addEventListener('stop', function() {
+                                const audioBlob = new Blob(chunks, { type: 'audio/webm' });
+                                sendAudio(audioBlob);
+                            });
+
+                            recorder.start();
+                        })
+                        .catch(function(err) {
+                            console.error('Error accessing microphone:', err);
+                            alert('Unable to access microphone. Please check permissions.');
+                        });
+                } else {
+                    alert('Voice recording is not supported in this browser.');
+                }
+            }
+
+            function stopRecording() {
+                if (recorder) {
+                    recorder.stop();
+                }
+            }
+
+            function sendAudio(audioBlob) {
+                const formData = new FormData();
+                formData.append('audio', audioBlob, 'audio.webm');
+                
+                addMessage('Processing voice input...', 'user');
+                const typingId = addTypingIndicator();
+
+                $.ajax({
+                    url: '/chat',
+                    type: 'POST',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function(response) {
+                        removeTypingIndicator(typingId);
+                        if (response.text) {
+                            addMessage(response.text, 'bot');
+                        }
+                    },
+                    error: function() {
+                        removeTypingIndicator(typingId);
+                        addMessage('Error processing voice input. Please try again.', 'bot');
+                    }
+                });
+            }
+
+            function setVoice(voiceFile) {
+                const audio = document.getElementById('audio');
+                audio.src = voiceFile;
+                audio.load();
+                audio.play();
+            }
+
+            // Modal functions
+            window.showWeatherModal = function() {
+                weatherModal.show();
+            };
+
+            window.showCropModal = function() {
+                cropModal.show();
+            };
+
+            window.showMarketModal = function() {
+                marketModal.show();
+                loadMarketPrices();
+            };
+
+            window.showImageModal = function() {
+                imageModal.show();
+            };
+
+            // Feature functions
+            window.getWeather = function() {
+                const location = $('#weather-location').val().trim();
+                if (!location) {
+                    $('#weather-result').html('<div class="alert alert-warning">Please enter a location.</div>');
+                    return;
+                }
+
+                $('#weather-result').html('<div class="loading"></div> Loading weather data...');
+
+                $.get('/weather', { location: location }, function(data) {
+                    if (data.error) {
+                        $('#weather-result').html(`<div class="alert alert-danger">${data.error}</div>`);
+                    } else {
+                        const weatherHtml = `
+                            <div class="alert alert-info">
+                                <h6>Weather in ${data.location}</h6>
+                                <p class="mb-1">Temperature: ${data.temperature}°C</p>
+                                <p class="mb-1">Description: ${data.description}</p>
+                                <p class="mb-1">Humidity: ${data.humidity}%</p>
+                                <p class="mb-0">Wind Speed: ${data.wind_speed} m/s</p>
+                            </div>
+                        `;
+                        $('#weather-result').html(weatherHtml);
+                    }
+                }).fail(function() {
+                    $('#weather-result').html('<div class="alert alert-danger">Unable to fetch weather data.</div>');
+                });
+            };
+
+            window.getCropAdvice = function() {
+                const location = $('#crop-location').val().trim();
+                const soilType = $('#soil-type').val();
+
+                if (!location) {
+                    $('#crop-result').html('<div class="alert alert-warning">Please enter a location.</div>');
+                    return;
+                }
+
+                $('#crop-result').html('<div class="loading"></div> Getting recommendations...');
+
+                $.get('/crops', { location: location, soil_type: soilType }, function(data) {
+                    let resultHtml = '<div class="alert alert-success">';
+                    
+                    if (data.weather) {
+                        resultHtml += `<h6>Weather Conditions:</h6>
+                            <p>Temperature: ${data.weather.temperature}°C, Humidity: ${data.weather.humidity}%</p>`;
+                    }
+                    
+                    if (data.recommendations && data.recommendations.length > 0) {
+                        resultHtml += '<h6>Crop Recommendations:</h6><ul>';
+                        data.recommendations.forEach(rec => {
+                            resultHtml += `<li>${rec}</li>`;
+                        });
+                        resultHtml += '</ul>';
+                    }
+                    
+                    if (data.soil_info) {
+                        resultHtml += `<h6>Soil Information:</h6><p>${data.soil_info}</p>`;
+                    }
+                    
+                    resultHtml += '</div>';
+                    $('#crop-result').html(resultHtml);
+                }).fail(function() {
+                    $('#crop-result').html('<div class="alert alert-danger">Unable to get crop recommendations.</div>');
+                });
+            };
+
+            window.loadMarketPrices = function() {
+                $.get('/market', function(data) {
+                    let pricesHtml = '<h6>Current Market Prices:</h6>';
+                    for (const [crop, info] of Object.entries(data)) {
+                        pricesHtml += `
+                            <div class="price-item">
+                                <span><strong>${crop.charAt(0).toUpperCase() + crop.slice(1)}</strong></span>
+                                <span>${info.price} ${info.trend}</span>
+                            </div>
+                        `;
+                    }
+                    $('#market-prices').html(pricesHtml);
+                }).fail(function() {
+                    $('#market-prices').html('<div class="alert alert-danger">Unable to load market prices.</div>');
+                });
+            };
+
+            // Drag and drop functions
+            window.handleDragOver = function(event) {
+                event.preventDefault();
+                event.currentTarget.classList.add('dragover');
+            };
+
+            window.handleDragLeave = function(event) {
+                event.preventDefault();
+                event.currentTarget.classList.remove('dragover');
+            };
+
+            window.handleDrop = function(event) {
+                event.preventDefault();
+                event.currentTarget.classList.remove('dragover');
+                
+                const files = event.dataTransfer.files;
+                if (files.length > 0) {
+                    const file = files[0];
+                    if (file.type.startsWith('image/')) {
+                        // Create a fake input element to reuse the existing upload logic
+                        const input = document.getElementById('image-upload');
+                        input.files = files;
+                        handleImageUpload(input);
+                    } else {
+                        alert('Please select a valid image file');
+                    }
+                }
+            };
+
+            window.handleImageUpload = function(input) {
+                const file = input.files[0];
+                if (file) {
+                    // Validate file type
+                    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+                    if (!allowedTypes.includes(file.type)) {
+                        alert('Please select a valid image file (JPG, PNG, or GIF)');
+                        input.value = '';
+                        return;
+                    }
+
+                    // Validate file size (max 10MB)
+                    if (file.size > 10 * 1024 * 1024) {
+                        alert('File size must be less than 10MB');
+                        input.value = '';
+                        return;
+                    }
+
+                    // Show preview
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        $('#image-preview').html(`
+                            <img src="${e.target.result}" class="img-fluid" style="max-height: 200px; border-radius: 10px;">
+                            <p class="text-muted small mt-2">File: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)</p>
+                        `);
+                    };
+                    reader.readAsDataURL(file);
+
+                    // Upload and analyze
+                    const formData = new FormData();
+                    formData.append('image', file);
+                    
+                    $('#image-analysis').html('<div class="loading"></div> <strong>Analyzing image...</strong><br><small class="text-muted">This may take a few seconds</small>');
+
+                    $.ajax({
+                        url: '/chat',
+                        type: 'POST',
+                        data: formData,
+                        contentType: false,
+                        processData: false,
+                        success: function(response) {
+                            if (response.text) {
+                                $('#image-analysis').html(`
+                                    <div class="alert alert-success">
+                                        <strong>Analysis Complete!</strong><br>
+                                        ${response.text}
+                                    </div>
+                                `);
+                            } else if (response.error) {
+                                $('#image-analysis').html(`
+                                    <div class="alert alert-warning">
+                                        <strong>Analysis Result:</strong><br>
+                                        ${response.error}
+                                    </div>
+                                `);
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('Upload error:', error);
+                            $('#image-analysis').html(`
+                                <div class="alert alert-danger">
+                                    <strong>Error analyzing image</strong><br>
+                                    Please try again or contact support if the problem persists.
+                                </div>
+                            `);
+                        }
+                    });
+                }
+            };
+
+            window.exportChat = function() {
+                window.open('/export', '_blank');
+            };
+
+            window.clearChat = function() {
+                if (confirm('Are you sure you want to clear the chat history?')) {
+                    $('#chat-container').html(`
+                        <div class="message bot">
+                            <div class="message-avatar">
+                                <i class="bi bi-robot"></i>
+                            </div>
+                            <div class="message-content">
+                                <strong>Farmer AI:</strong> Chat history cleared. How can I help you today?
+                            </div>
+                        </div>
+                    `);
+                }
+            };
+
+            function updateLanguage() {
+                // Update UI language (placeholder for future implementation)
+                console.log('Language changed to:', currentLanguage);
+            }
+        });
+    </script>
+</body>
+</html>
