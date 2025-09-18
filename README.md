@@ -221,7 +221,3 @@ python -m pytest tests/ --cov=farmer
 3. Make your changes
 4. Add tests
 5. Submit a pull request
-
-## 📄 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
